@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chang.chill.mapper.ChillUserRolePermissionMapper">
+    <select id="getPermissionList" resultType="com.chang.chill.model.ChillPermission">
+        SELECT
+			P .*
+		FROM
+			t_user_role_relation ur
+		LEFT JOIN t_role r ON ur.role_id = r. ID
+		LEFT JOIN t_role_permission_relation rp ON r. ID = rp.role_id
+		LEFT JOIN t_permission P ON rp.permission_id = P . ID
+		WHERE
+			ur.user_id = #{userId}
+		AND P . ID IS NOT NULL
+		AND P . ID NOT IN (
+			SELECT
+				P . ID
+			FROM
+				t_user_permission_relation pr
+			LEFT JOIN t_permission P ON pr.permission_id = P . ID
+			WHERE
+				pr. TYPE = - 1
+			AND pr.user_id = #{userId}
+		)
+		UNION
+			SELECT
+				p.*
+			FROM
+				t_user_permission_relation upr
+			LEFT JOIN t_permission p ON upr.permission_id = p.ID
+			WHERE
+				upr. TYPE = 1
+			AND upr.user_id = #{userId}
+    </select>
+</mapper>
